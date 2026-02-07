@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" 
+           Name="PyPad" 
+           Language="1033" 
+           Version="1.0.0.0" 
+           Manufacturer="Mark Wesker" 
+           UpgradeCode="DACBB8EC-82E4-4426-A3A3-F0FB5693D396">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine" 
+             Description="PyPad Text Editor"
+             Comments="PyPad Text Editor Installation"/>
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of PyPad is already installed." />
+    <MediaTemplate EmbedCab="yes"/>
+    <WixVariable Id="WixUILicenseRtf" Value="license.rtf"/>
+    <Icon Id="ProductIcon" SourceFile="PyPad.exe"/>
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch PyPad"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    <Feature Id="ProductFeature" Title="PyPad" Level="1">
+      <ComponentRef Id="ApplicationFiles"/>
+      <ComponentRef Id="StartMenuShortcuts"/>
+      <ComponentRef Id="DesktopShortcut"/>
+    </Feature>
+    
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="PyPad"/>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="PyPad"/>
+      </Directory>
+      <Directory Id="DesktopFolder"/>
+    </Directory>
+    
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="ApplicationFiles" Guid="*">
+        <File Id="PyPadExe" 
+              Source="PyPad.exe" 
+              KeyPath="yes"
+              Checksum="yes"/>
+			  
+        <RegistryValue Root="HKLM" 
+                       Key="Software\Wesker\PyPad" 
+                       Name="InstallPath" 
+                       Type="string" 
+                       Value="[INSTALLFOLDER]"/>
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcuts" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="PyPad"
+                  Description="PyPad Text Editor"
+                  Target="[INSTALLFOLDER]PyPad.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        
+        <Shortcut Id="UninstallProduct"
+                  Name="Uninstall PyPad"
+                  Description="Uninstalls PyPad"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]"/>
+        
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" 
+                       Key="Software\Wesker\PyPad" 
+                       Name="StartMenuShortcuts" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="*">
+        <Shortcut Id="DesktopShortcut"
+                  Name="PyPad"
+                  Description="PyPad Text Editor"
+                  Target="[INSTALLFOLDER]PyPad.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        
+        <RegistryValue Root="HKCU" 
+                       Key="Software\Wesker\PyPad" 
+                       Name="DesktopShortcut" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER"/>
+    
+    <UI>
+      <UIRef Id="WixUI_FeatureTree"/>
+      <Publish Dialog="ExitDialog" 
+               Control="Finish" 
+               Event="DoAction" 
+               Value="LaunchApplication">
+        <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed]]>
+      </Publish>
+    </UI>
+    
+    <CustomAction Id="LaunchApplication" 
+                  FileKey="PyPadExe" 
+                  ExeCommand="" 
+                  Return="asyncNoWait" 
+                  Impersonate="yes"/>
+    
+  </Product>
+</Wix>
